@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="form.MainForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="510" height="510"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <tabbedpane id="8646b" binding="tab">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <minimumSize width="500" height="350"/>
+          <requestFocusEnabled value="false"/>
+          <tabLayoutPolicy value="0"/>
+          <tabPlacement value="3"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <grid id="7dcfb" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <tabbedpane title="信息"/>
+            </constraints>
+            <properties>
+              <inheritsPopupMenu value="false"/>
+              <minimumSize width="500" height="350"/>
+            </properties>
+            <border type="none"/>
+            <children/>
+          </grid>
+          <grid id="e2cd0" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <tabbedpane title="统计"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+          <grid id="c8303" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <tabbedpane title="管理员"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+        </children>
+      </tabbedpane>
+    </children>
+  </grid>
+</form>
