@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class DatabaseUtils {
     private static Connection con  = null;
     static  Statement stat = null;
+    static ResultSet rs = null;
+    static String sqlFac;
    public static void linkDataBase() throws SQLException, ClassNotFoundException {
         //驱动程序名
         String driver = "com.mysql.cj.jdbc.Driver";
@@ -23,6 +25,7 @@ public class DatabaseUtils {
         Class.forName(driver);
         //1.getConnection()方法，连接MySQL数据库！！
         con = DriverManager.getConnection(url, user, password);
+        con.setAutoCommit(false);
     }
     public static People findPeopleById(long id)
     {
@@ -33,7 +36,7 @@ public class DatabaseUtils {
         ArrayList<People> peopleArrayList = new ArrayList<>();
         stat = con.createStatement();
         String sql = "select * from people;";
-        ResultSet rs = stat.executeQuery(sql);
+        rs = stat.executeQuery(sql);
         while (rs.next()) {
             People people = new People();
             people.setId(rs.getLong("id"));
@@ -47,16 +50,17 @@ public class DatabaseUtils {
             people.setArrivetime(rs.getTimestamp("arrivetime"));
             peopleArrayList.add(people);
         }
+        closeCon();
         if (peopleArrayList.size() != 0)
             return peopleArrayList;
         else
             return null;
     }
     public static Admin findAdminByAccountAndPassword(String account, String password) throws SQLException {
-
-        stat = con.createStatement();
+       if(con==null||con.isClosed())
+         stat = con.createStatement();
         String sql = "select * from admin where account='"+account+"'and password='"+password+"';";
-        ResultSet rs = stat.executeQuery(sql);
+        rs = stat.executeQuery(sql);
         if (rs.next())
         {
             Admin admin  = new Admin();
@@ -64,8 +68,10 @@ public class DatabaseUtils {
             admin.setAccount(rs.getString("account"));
             admin.setPassword(rs.getString("password"));
             admin.setLevel(rs.getString("level"));
+            closeCon();
             return admin;
         }
+        closeCon();
         return  null;
     }
     public static boolean alertPeopleById(People people)
@@ -83,5 +89,31 @@ public class DatabaseUtils {
     public static boolean insertAdmin(Admin admin)
     {
         return true;
+    }
+    public static boolean deletePeople(int peopleId) throws SQLException {
+        stat = con.createStatement();
+        String sql = "delete from people where id='"+peopleId+"';";
+        return stat.execute(sql);
+    }
+    public static void commit() throws SQLException {
+        if (con != null)
+            con.commit();
+    }
+    public static void closeRsAndStat() throws SQLException {
+        if(rs!=null)
+        {
+            rs.close();
+        }
+        if(stat!=null)
+        {
+            stat.close();
+        }
+    }
+    public static void closeCon() throws SQLException {
+         closeRsAndStat();
+         if(con!=null)
+         {
+             con.close();
+         }
     }
 }

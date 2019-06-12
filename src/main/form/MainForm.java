@@ -12,6 +12,8 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -30,8 +32,25 @@ public class MainForm {
     private Admin admin;
 
     //初始构造函数、初始化数据
-    MainForm() {
+    public MainForm(JFrame frame) {
         initInfPanel();
+        infTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if(e.getButton()==MouseEvent.BUTTON3)
+                {
+                    try {
+                         if(DatabaseUtils.deletePeople(infTable.rowAtPoint(e.getPoint())))
+                         {
+                             JOptionPane.showMessageDialog(mainPanel, "本地提交成功", "提示", JOptionPane.INFORMATION_MESSAGE);
+                         }
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
         refresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,8 +86,8 @@ public class MainForm {
                 DefaultTableModel defaultTableModel = new DefaultTableModel();
                 String[] columnNames = {"编号", "姓名", "性别", "年龄", "职称", "政治面貌", "最高学历", "任职时间", "到达时间"};
                 defaultTableModel.setColumnIdentifiers(columnNames);
-
                 try {
+                    DatabaseUtils.linkDataBase();
                     ArrayList<People> arrayList = DatabaseUtils.getAllPeople();
                     if (arrayList != null) {
                         defaultTableModel.setRowCount(arrayList.size());
@@ -84,7 +103,7 @@ public class MainForm {
                             defaultTableModel.setValueAt(arrayList.get(i).getArrivetime().toString(), i, 8);
                         }
                     }
-                } catch (SQLException e) {
+                } catch (SQLException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
                 EditComboBox sexCom = new EditComboBox(new String[]{"男", "女"});
