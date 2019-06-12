@@ -29,10 +29,28 @@ public class DatabaseUtils {
         People people = new People();
         return people;
     }
-    public static ArrayList<People> getAllPeople()
-    {
+    public static ArrayList<People> getAllPeople() throws SQLException {
         ArrayList<People> peopleArrayList = new ArrayList<>();
-        return peopleArrayList;
+        stat = con.createStatement();
+        String sql = "select * from people;";
+        ResultSet rs = stat.executeQuery(sql);
+        while (rs.next()) {
+            People people = new People();
+            people.setId(rs.getLong("id"));
+            people.setName(rs.getString("name"));
+            people.setSex(rs.getString("sex"));
+            people.setAge(rs.getLong("age"));
+            people.setTitle(rs.getString("title"));
+            people.setPoliticalstatus(rs.getString("politicalstatus"));
+            people.setHighestdegree(rs.getString("highestdegree"));
+            people.setTermtime(rs.getTimestamp("termTime"));
+            people.setArrivetime(rs.getTimestamp("arrivetime"));
+            peopleArrayList.add(people);
+        }
+        if (peopleArrayList.size() != 0)
+            return peopleArrayList;
+        else
+            return null;
     }
     public static Admin findAdminByAccountAndPassword(String account, String password) throws SQLException {
 
@@ -42,7 +60,7 @@ public class DatabaseUtils {
         if (rs.next())
         {
             Admin admin  = new Admin();
-            admin.setId( Long.parseLong(rs.getString("id")));
+            admin.setId(rs.getLong("id"));
             admin.setAccount(rs.getString("account"));
             admin.setPassword(rs.getString("password"));
             admin.setLevel(rs.getString("level"));

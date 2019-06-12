@@ -24,10 +24,11 @@ public class LoginFrom {
     }
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         frame = new JFrame("LoginFrom");
-        LoginFrom  loginFrom =  new LoginFrom();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        LoginFrom loginFrom = new LoginFrom();
         frame.setContentPane(loginFrom.loginPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setMinimumSize(new Dimension(300,160));
+        frame.setMinimumSize(new Dimension(300, 160));
         frame.setResizable(false);//设置大小不可改变
         loginFrom.loginButton.addActionListener(new ActionListener() {
             @Override
@@ -50,34 +51,28 @@ public class LoginFrom {
                             @Override
                             public void run() {
                                 super.run();
-                                 try {
-                                  DatabaseUtils.linkDataBase();
-                                for (int i = 0; i < 11111; i++)
-                                    System.out.println("wait");
-                                Admin admin = DatabaseUtils.findAdminByAccountAndPassword(accountText, passwordText);
+                                try {
+                                    DatabaseUtils.linkDataBase();
+                                    Admin admin = DatabaseUtils.findAdminByAccountAndPassword(accountText, passwordText);
 //                                admin  = new Admin();
 //                                admin.setAccount("1234");
 //                                admin.setLevel("管理员");
-                                if (admin != null) {
-                                    startMain(admin);
+                                    if (admin != null) {
+                                        startMain(admin);
+                                    } else {
+                                        JOptionPane.showMessageDialog(loginFrom.loginPanel, "账户或密码错误", "提示", JOptionPane.INFORMATION_MESSAGE);
+                                        loginFrom.account.setEnabled(true);
+                                        loginFrom.password.setEnabled(true);
+                                        loginFrom.loginButton.setText("登录");
+                                        loginLock = true;
+                                    }
+                                } catch (SQLException | ClassNotFoundException e) {
+                                    e.printStackTrace();
                                 }
-                                else
-                                {
-                                    JOptionPane.showMessageDialog(loginFrom.loginPanel, "账户或密码错误", "提示", JOptionPane.INFORMATION_MESSAGE);
-                                    loginFrom.account.setEnabled(true);
-                                    loginFrom.password.setEnabled(true);
-                                    loginFrom.loginButton.setText("登录");
-                                    loginLock = true;
-                                }
-                            } catch (SQLException | ClassNotFoundException e1) {
-                                e1.printStackTrace();
-                            }
                             }
                         }.start();
                     }
-                }
-                else
-                {
+                } else {
                     JOptionPane.showMessageDialog(loginFrom.loginPanel, "正在登录...", "警告", JOptionPane.WARNING_MESSAGE);
                 }
             }
@@ -88,7 +83,9 @@ public class LoginFrom {
     private static void startMain(Admin admin)
     {
         JFrame mainFrame  = new JFrame("人事管理程序");
-        MainForm mainForm = new MainForm(admin);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        MainForm mainForm = new MainForm();
+        mainForm.initManPanel(admin);
         mainFrame.setMinimumSize(new Dimension(500,350));
         mainFrame.setContentPane(mainForm.getMainPanel());
         mainFrame.setVisible(true);
