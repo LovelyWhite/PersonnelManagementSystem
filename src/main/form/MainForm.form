@@ -10,25 +10,72 @@
       <tabbedpane id="8646b" binding="tab">
         <constraints border-constraint="Center"/>
         <properties>
+          <background color="-855310"/>
           <minimumSize width="500" height="350"/>
           <requestFocusEnabled value="false"/>
-          <tabLayoutPolicy value="0"/>
+          <tabLayoutPolicy value="1"/>
           <tabPlacement value="3"/>
         </properties>
         <border type="none"/>
         <children>
-          <grid id="7dcfb" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+          <grid id="7dcfb" binding="infPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
               <tabbedpane title="信息"/>
             </constraints>
             <properties>
+              <alignmentX value="0.5"/>
+              <alignmentY value="0.0"/>
+              <background color="-1"/>
               <inheritsPopupMenu value="false"/>
               <minimumSize width="500" height="350"/>
+              <preferredSize width="500" height="400"/>
             </properties>
             <border type="none"/>
-            <children/>
+            <children>
+              <scrollpane id="c8236" binding="scroll">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <background color="-855310"/>
+                  <horizontalScrollBarPolicy value="30"/>
+                  <verticalScrollBarPolicy value="22"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="2a0bd" class="javax.swing.JTable" binding="infTable">
+                    <constraints/>
+                    <properties>
+                      <showHorizontalLines value="true"/>
+                      <showVerticalLines value="true"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+              <grid id="a40e6" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
+                <constraints border-constraint="Last"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="54d89" class="javax.swing.JButton" binding="refresh">
+                    <constraints/>
+                    <properties>
+                      <horizontalTextPosition value="0"/>
+                      <text value="刷新"/>
+                      <verifyInputWhenFocusTarget value="false"/>
+                      <verticalAlignment value="0"/>
+                      <verticalTextPosition value="0"/>
+                    </properties>
+                  </component>
+                  <component id="6026b" class="javax.swing.JButton" binding="submit">
+                    <constraints/>
+                    <properties>
+                      <text value="提交"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
           </grid>
-          <grid id="e2cd0" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+          <grid id="e2cd0" binding="statPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
             <constraints>
               <tabbedpane title="统计"/>
             </constraints>
@@ -36,13 +83,78 @@
             <border type="none"/>
             <children/>
           </grid>
-          <grid id="c8303" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+          <grid id="c8303" binding="manPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
               <tabbedpane title="管理员"/>
             </constraints>
             <properties/>
             <border type="none"/>
-            <children/>
+            <children>
+              <grid id="39b52" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="Center"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="8f6f3" layout-manager="GridBagLayout">
+                    <constraints border-constraint="Center"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="aff20" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="16" style="1"/>
+                          <text value="当前登录："/>
+                        </properties>
+                      </component>
+                      <component id="891e9" class="javax.swing.JLabel" binding="currentLogin">
+                        <constraints>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <text value="admin"/>
+                        </properties>
+                      </component>
+                      <component id="ef886" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <font size="16" style="1"/>
+                          <text value="等级："/>
+                        </properties>
+                      </component>
+                      <component id="36d26" class="javax.swing.JLabel" binding="level">
+                        <constraints>
+                          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <text value="超级管理员"/>
+                        </properties>
+                      </component>
+                      <hspacer id="80f0">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                      </hspacer>
+                      <hspacer id="2f580">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                      </hspacer>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+            </children>
           </grid>
         </children>
       </tabbedpane>
