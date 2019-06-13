@@ -26,7 +26,6 @@ public class MainForm {
     private JPanel mainPanel;
     private JTable infTable;
     private JPanel infPanel;
-    private JPanel statPanel;
     private JPanel manPanel;
     private JScrollPane scroll;
     private JButton refresh;
@@ -35,11 +34,13 @@ public class MainForm {
     private JLabel level;
     private JButton rollback;
     private JButton add;
+    private JComboBox screen;
     private Admin admin;
     private ArrayList<Point> points;
     private HashMap<String,Object> history;
     private boolean initLock;
     private static DefaultTableCellRenderer clickColorC;
+    private ArrayList<People> arrayList = null;
     Object[][] backUp;
     //初始构造函数、初始化数据
     public MainForm(JFrame frame) {
@@ -51,7 +52,7 @@ public class MainForm {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-                if(history.containsKey(row+""+column)||history.containsKey(row+""+column))
+                if(history.containsKey(row+""+-1)||history.containsKey(row+""+column))
                 {
 
                     setBackground(red);
@@ -65,7 +66,6 @@ public class MainForm {
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
         };
-
         initInfPanel();
         infTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -119,6 +119,7 @@ public class MainForm {
                             infTable.removeRowSelectionInterval(p.x,p.x);
                         }
                     });
+                    JOptionPane.showMessageDialog(mainPanel, "修改/删除成功", "提示", JOptionPane.INFORMATION_MESSAGE);
                     history.clear();
                     points.clear();
                     infTable.repaint();
@@ -180,6 +181,7 @@ public class MainForm {
     private void initInfPanel() {
         initLock = false;
         refresh.setEnabled(false);
+        String screenSelect = (String)screen.getSelectedItem();
         new Thread() {
             @Override
             public void run() {
@@ -211,6 +213,17 @@ public class MainForm {
                                 Point p = new Point(row,col);
                                 points.add(p);
                                 history.put(p.x+""+p.y,backUp[row][col]);
+                                People people = arrayList.get(row);
+                                switch (col)
+                                {
+                                    case 1:people.setName((String)o);break;
+                                    case 2:people.setSex((String)o);break;
+                                    case 3:people.setAge(Long.parseLong((String)o));break;
+                                    case 4:people.setTitle((String)o);break;
+                                    case 5:;people.setPoliticalstatus((String)o);break;
+                                    case 6:people.setHighestdegree((String)o);break;
+                                }
+                                DatabaseUtils.alertPeopleById(people);
                                 submit.setEnabled(true);
                                 rollback.setEnabled(true);
                             }
@@ -221,7 +234,7 @@ public class MainForm {
                 defaultTableModel.setColumnIdentifiers(columnNames);
                 try {
                     DatabaseUtils.linkDataBase();
-                    ArrayList<People> arrayList = DatabaseUtils.getAllPeople();
+                    arrayList = DatabaseUtils.getAllPeople(screenSelect);
                     DatabaseUtils.closeCon();
                     if (arrayList != null) {
                         backUp= new Object[arrayList.size()][9];
@@ -268,9 +281,19 @@ public class MainForm {
         }.start();
 
     }
-    private static void startAdd()
+    private void startAdd()
     {
-        JFrame addFrame  = new JFrame("添加");
+        JFrame addFrame  = new JFrame("添加")
+        {
+            @Override
+            public void setVisible(boolean b) {
+                super.setVisible(b);
+                if(!b)
+                {
+                    initInfPanel();
+                }
+            }
+        };
         AddForm addForm = new AddForm(addFrame);
         addFrame.setContentPane(addForm.getAddPanel());
         addFrame.pack();

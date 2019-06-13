@@ -5,6 +5,7 @@ import model.People;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 
 public class DatabaseUtils {
@@ -34,10 +35,20 @@ public class DatabaseUtils {
         People people = new People();
         return people;
     }
-    public static ArrayList<People> getAllPeople() throws SQLException {
+    public static ArrayList<People> getAllPeople(String screenSelect) throws SQLException {
         ArrayList<People> peopleArrayList = new ArrayList<>();
+        String sql = null;
         stat = con.createStatement();
-        String sql = "select * from people;";
+        if(screenSelect.equals("全部"))
+            sql = "select * from people;";
+        else if(screenSelect.equals("在职"))
+            sql = "select * from people where title in('行政人员','教师','一般员工');";
+        else if(screenSelect.equals("党员"))
+            sql = "select * from people where politicalstatus like '%党员%';";
+        else if(screenSelect.equals("女工"))
+            sql = "select * from people where sex='女';";
+        else if(screenSelect.equals("高学历"))
+            sql = "select * from people where highestdegree in('本科','硕士','博士');";
         rs = stat.executeQuery(sql);
         while (rs.next()) {
             People people = new People();
@@ -72,9 +83,18 @@ public class DatabaseUtils {
         }
         return  null;
     }
-    public static boolean alertPeopleById(People people)
+    public static void alertPeopleById(People people)
     {
-        return true;
+        String sql = "update people set name ='"+people.getName()+
+                "',sex ='"+people.getSex()+
+                "',age="+people.getAge()+
+                ",title='"+people.getTitle()+
+                "',politicalstatus='"+people.getPoliticalstatus()+
+                "',highestdegree='"+people.getHighestdegree()+
+                "',termtime='"+people.getTermtime()+
+                "',arrivetime='" +people.getArrivetime()+"'where id="+people.getId()+";";
+        sqls.push(sql);
+
     }
     public static boolean alertAdminById(Admin admin)
     {

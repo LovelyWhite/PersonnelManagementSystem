@@ -85,15 +85,21 @@
                   </component>
                 </children>
               </grid>
+              <component id="2746d" class="javax.swing.JComboBox" binding="screen">
+                <constraints border-constraint="North"/>
+                <properties>
+                  <editable value="false"/>
+                  <model>
+                    <item value="全部"/>
+                    <item value="在职"/>
+                    <item value="党员"/>
+                    <item value="女工"/>
+                    <item value="高学历"/>
+                  </model>
+                  <toolTipText value="筛选"/>
+                </properties>
+              </component>
             </children>
-          </grid>
-          <grid id="e2cd0" binding="statPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-            <constraints>
-              <tabbedpane title="统计"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children/>
           </grid>
           <grid id="c8303" binding="manPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
