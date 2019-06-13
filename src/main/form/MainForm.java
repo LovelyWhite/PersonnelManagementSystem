@@ -6,6 +6,9 @@ import model.Admin;
 import model.People;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
@@ -15,7 +18,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.Savepoint;
+import java.util.*;
 
 public class MainForm {
     private JTabbedPane tab;
@@ -29,25 +33,68 @@ public class MainForm {
     private JButton submit;
     private JLabel currentLogin;
     private JLabel level;
+    private JButton rollback;
+    private JButton add;
     private Admin admin;
-
+    private ArrayList<Point> points;
+    private HashMap<String,Object> history;
+    private boolean initLock;
+    private static DefaultTableCellRenderer clickColorC;
+    Object[][] backUp;
     //初始构造函数、初始化数据
     public MainForm(JFrame frame) {
+        points = new ArrayList<>();
+        history = new HashMap<>();
+        Color red = new Color(0xFF0020);
+        Color gray = new Color(254,254,254,5);
+        clickColorC= new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+                if(history.containsKey(row+""+column)||history.containsKey(row+""+column))
+                {
+
+                    setBackground(red);
+                    infTable.setSelectionBackground(red);
+                }
+                else
+                {
+                    setBackground(gray);
+                    infTable.setSelectionBackground(gray);
+                }
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        };
+
         initInfPanel();
         infTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                if(e.getButton()==MouseEvent.BUTTON3)
-                {
-                    try {
-                         if(DatabaseUtils.deletePeople(infTable.rowAtPoint(e.getPoint())))
-                         {
-                             JOptionPane.showMessageDialog(mainPanel, "本地提交成功", "提示", JOptionPane.INFORMATION_MESSAGE);
-                         }
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    int clickRow = infTable.rowAtPoint(e.getPoint());
+                    if (!history.containsKey(clickRow+""+-1)) {
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                super.run();
+                                try {
+                                    DatabaseUtils.linkDataBase();
+                                    DatabaseUtils.deletePeople((long) infTable.getValueAt(clickRow, 0));
+                                    Point p = new Point(clickRow,-1);
+                                    points.add(p);
+                                    history.put(p.x+""+p.y,null);
+                                    rollback.setEnabled(true);
+                                    submit.setEnabled(true);
+                                    infTable.repaint();
+                                } catch (SQLException | ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }.start();
                     }
+
                 }
             }
         });
@@ -55,6 +102,59 @@ public class MainForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 initInfPanel();
+            }
+        });
+        submit.setEnabled(false);
+        submit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int result =DatabaseUtils.commit();
+                if (result== history.size()) {
+                DefaultTableModel defaultTableModel =  (DefaultTableModel)infTable.getModel();
+                    points.forEach((p)->
+                    {
+
+                        if(history.get(p.x+""+p.y)==null)
+                        {
+                            infTable.removeRowSelectionInterval(p.x,p.x);
+                        }
+                    });
+                    history.clear();
+                    points.clear();
+                    infTable.repaint();
+                    submit.setEnabled(false);
+                    rollback.setEnabled(false);
+                }
+            }
+        });
+        rollback.setEnabled(false);
+        rollback.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DatabaseUtils.rollBack();
+                Point p = points.get(points.size()-1);
+                if(history.get(p.x+""+p.y)==null)
+                {
+                    infTable.removeRowSelectionInterval(p.x,p.x);
+                }
+                else
+                {
+                    infTable.setValueAt(history.get(p.x+""+p.y),p.x,p.y);
+                }
+                points.remove(points.size()-1);
+                history.remove(p.x+""+p.y);
+                infTable.repaint();
+                if(points.size()==0)
+                {
+                    submit.setEnabled(false);
+                    rollback.setEnabled(false);
+                }
+            }
+        });
+        add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startAdd();
             }
         });
     }
@@ -78,18 +178,53 @@ public class MainForm {
     }
 
     private void initInfPanel() {
+        initLock = false;
         refresh.setEnabled(false);
         new Thread() {
             @Override
             public void run() {
                 super.run();
-                DefaultTableModel defaultTableModel = new DefaultTableModel();
+                DefaultTableModel defaultTableModel = new DefaultTableModel()
+                {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        if(column==0||column==7||column==8)
+                            return false;
+                        else if (points.contains(new Point(row,-1)))
+                        {
+                            return false;
+                        }
+                        else
+                            return true ;
+                    }
+                };
+                defaultTableModel.addTableModelListener(new TableModelListener() {
+                    @Override
+                    public void tableChanged(TableModelEvent e) {
+                        int row = e.getFirstRow();
+                        int col = e.getColumn();
+                        if(initLock&&row!=-1&&col!=-1&&e.getType()==TableModelEvent.UPDATE)
+                        {
+                            Object o = infTable.getValueAt(row,col);
+                            if(!o.equals(backUp[row][col]))
+                            {
+                                Point p = new Point(row,col);
+                                points.add(p);
+                                history.put(p.x+""+p.y,backUp[row][col]);
+                                submit.setEnabled(true);
+                                rollback.setEnabled(true);
+                            }
+                        }
+                    }
+                });
                 String[] columnNames = {"编号", "姓名", "性别", "年龄", "职称", "政治面貌", "最高学历", "任职时间", "到达时间"};
                 defaultTableModel.setColumnIdentifiers(columnNames);
                 try {
                     DatabaseUtils.linkDataBase();
                     ArrayList<People> arrayList = DatabaseUtils.getAllPeople();
+                    DatabaseUtils.closeCon();
                     if (arrayList != null) {
+                        backUp= new Object[arrayList.size()][9];
                         defaultTableModel.setRowCount(arrayList.size());
                         for (int i = 0; i < arrayList.size(); i++) {
                             defaultTableModel.setValueAt(arrayList.get(i).getId(), i, 0);
@@ -101,6 +236,13 @@ public class MainForm {
                             defaultTableModel.setValueAt(arrayList.get(i).getHighestdegree(), i, 6);
                             defaultTableModel.setValueAt(arrayList.get(i).getTermtime().toString(), i, 7);
                             defaultTableModel.setValueAt(arrayList.get(i).getArrivetime().toString(), i, 8);
+                        }
+                        for(int x = 0;x<arrayList.size();x++)
+                        {
+                            for(int z = 0;z<9;z++)
+                            {
+                                backUp[x][z] = defaultTableModel.getValueAt(x,z);
+                            }
                         }
                     }
                 } catch (SQLException | ClassNotFoundException e) {
@@ -115,9 +257,23 @@ public class MainForm {
                 infTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(titleCom));
                 infTable.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(poCom));
                 infTable.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(hiCom));
+
+                int columnCount = infTable.getColumnCount();
+                for (int i = 0; i < columnCount; i++) {
+                    infTable.getColumn(infTable.getColumnName(i)).setCellRenderer(clickColorC);
+                }
                 refresh.setEnabled(true);
+                initLock = true;
             }
         }.start();
 
+    }
+    private static void startAdd()
+    {
+        JFrame addFrame  = new JFrame("添加");
+        AddForm addForm = new AddForm(addFrame);
+        addFrame.setContentPane(addForm.getAddPanel());
+        addFrame.pack();
+        addFrame.setVisible(true);
     }
 }

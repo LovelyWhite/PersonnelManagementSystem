@@ -55,6 +55,18 @@
                 <properties/>
                 <border type="none"/>
                 <children>
+                  <component id="83cf0" class="javax.swing.JButton" binding="add">
+                    <constraints/>
+                    <properties>
+                      <text value="添加"/>
+                    </properties>
+                  </component>
+                  <component id="9f2ff" class="javax.swing.JButton" binding="rollback">
+                    <constraints/>
+                    <properties>
+                      <text value="撤销"/>
+                    </properties>
+                  </component>
                   <component id="54d89" class="javax.swing.JButton" binding="refresh">
                     <constraints/>
                     <properties>
