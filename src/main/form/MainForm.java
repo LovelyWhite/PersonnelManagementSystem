@@ -35,6 +35,7 @@ public class MainForm {
     private JButton rollback;
     private JButton add;
     private JComboBox screen;
+    private JLabel peoplenum;
     private Admin admin;
     private ArrayList<Point> points;
     private HashMap<String, Object> history;
@@ -233,6 +234,7 @@ public class MainForm {
             arrayList = DatabaseUtils.getAllPeople(screenSelect);
             DatabaseUtils.closeCon();
             if (arrayList != null) {
+                peoplenum.setText(arrayList.size()+"");
                 backUp = new Object[arrayList.size()][9];
                 defaultTableModel.setRowCount(arrayList.size());
                 for (int i = 0; i < arrayList.size(); i++) {

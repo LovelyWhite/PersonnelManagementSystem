@@ -55,6 +55,21 @@
                 <properties/>
                 <border type="none"/>
                 <children>
+                  <component id="c82ff" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value="人数："/>
+                    </properties>
+                  </component>
+                  <component id="d2e38" class="javax.swing.JLabel" binding="peoplenum">
+                    <constraints/>
+                    <properties>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                  <hspacer id="35f3c">
+                    <constraints/>
+                  </hspacer>
                   <component id="83cf0" class="javax.swing.JButton" binding="add">
                     <constraints/>
                     <properties>
