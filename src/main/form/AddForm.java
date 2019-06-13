@@ -73,20 +73,12 @@ public class AddForm {
                 people.setTermtime(termtimeTimestamp);
                 people.setArrivetime(arrivetimeTimestamp);
                 DatabaseUtils.insertPeople(people);
-                new Thread()
+                int result =  DatabaseUtils.commit();
+                if(result==1)
                 {
-                    @Override
-                    public void run() {
-                        super.run();
-                        int result =  DatabaseUtils.commit();
-                        System.out.println(result);
-                        if(result==1)
-                        {
-                            JOptionPane.showMessageDialog(addPanel, "添加成功", "提示", JOptionPane.INFORMATION_MESSAGE);
-                            addFrame.setVisible(false);
-                        }
-                    }
-                }.start();
+                    JOptionPane.showMessageDialog(addPanel, "添加成功", "提示", JOptionPane.INFORMATION_MESSAGE);
+                    addFrame.setVisible(false);
+                }
             }
         });
     }
